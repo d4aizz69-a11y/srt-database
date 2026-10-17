@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHP SRT Dashboard</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #090a0f;
+      color: #e2e8f0;
+      overflow: hidden;
+      animation: fadeInPage 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeInPage {
+      from { opacity: 0; transform: scale(0.99); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Localized Diagonal Light Shine */
+    @keyframes diagonalSweep {
+      0% { transform: translateX(100%) translateY(100%) rotate(-45deg); }
+      100% { transform: translateX(-100%) translateY(-100%) rotate(-45deg); }
+    }
+
+    .local-shine {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .local-shine::after {
+      content: '';
+      position: absolute;
+      top: -150%;
+      left: -150%;
+      width: 400%;
+      height: 400%;
+      background: linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0) 44%,
+        rgba(255, 255, 255, 0.04) 50%,
+        rgba(255, 255, 255, 0) 56%
+      );
+      animation: diagonalSweep 9s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    /* True Blurred Liquid Glass Card */
+    .liquid-glass-card {
+      background: rgba(12, 15, 22, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Silver Discord Button Styling */
+    .btn-discord {
+      background: linear-gradient(180deg, #5865F2 0%, #4752C4 100%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      box-shadow: 0 4px 20px rgba(88, 101, 242, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-discord:hover {
+      background: linear-gradient(180deg, #6975F3 0%, #515DEF 100%);
+      box-shadow: 0 0 25px rgba(88, 101, 242, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .silver-card {
+      background: linear-gradient(145deg, rgba(25, 29, 38, 0.88) 0%, rgba(12, 14, 18, 0.96) 100%);
+      border: 1px solid rgba(203, 213, 225, 0.2);
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(16px);
+    }
+
+    .silver-input {
+      background-color: rgba(15, 18, 24, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .silver-input:focus {
+      outline: none;
+      border-color: rgba(226, 232, 240, 0.6);
+      box-shadow: 0 0 12px rgba(148, 163, 184, 0.2);
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #090a0f; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  </style>
+</head>
+<body class="h-screen flex flex-col">
+
+  <!-- ==================== FULL-SCREEN LOGIN / AUTHENTICATION SCREEN ==================== -->
+  <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-between bg-[#090a0f] bg-cover bg-center transition-all duration-1000" id="slideshow-container" style="background-image: url('bg1.jpg');">
+    
+    <!-- Dark Gradient Overlay -->
+    <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(to right, rgba(9,10,15,0.2) 0%, rgba(9,10,15,0.5) 40%, rgba(9,10,15,0.92) 70%, #090a0f 100%), linear-gradient(to top, rgba(9,10,15,0.7) 0%, transparent 40%, rgba(9,10,15,0.5) 100%);"></div>
+
+    <!-- LEFT SIDE: CHP SRT Info & Features -->
+    <div class="relative z-10 p-12 hidden lg:flex flex-col justify-between h-full max-w-2xl">
+      <div class="flex items-center space-x-3">
+        <div class="w-8 h-8 rounded bg-slate-800/90 border border-slate-500 flex items-center justify-center font-bold text-xs text-slate-100 shadow-lg">
+          SRT
+        </div>
+        <span class="font-bold text-sm text-slate-200 tracking-wide">CHP Dashboard</span>
+      </div>
+
+      <div class="my-auto space-y-4 p-4 rounded-xl local-shine">
+        <h1 class="text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-md whitespace-nowrap">
+          Special Response Team
+        </h1>
+        <p class="text-xs font-bold text-slate-300 tracking-widest uppercase">
+          SAFETY • SERVICE • SECURITY
+        </p>
+
+        <p class="text-xs text-slate-300 leading-relaxed max-w-md drop-shadow">
+          Shifts, tactical operations, conduct, filing, department leaderboard, and more — sign in with Discord to get started.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-2 pt-2 text-[11px] text-slate-300 font-medium">
+          <span class="flex items-center space-x-1.5 bg-black/50 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur"><i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i><span>Shifts</span></span>
+          <span class="flex items-center space-x-1.5 bg-black/50 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur"><i data-lucide="shield" class="w-3.5 h-3.5 text-slate-400"></i><span>Tactical</span></span>
+          <span class="flex items-center space-x-1.5 bg-black/50 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur"><i data-lucide="file-check" class="w-3.5 h-3.5 text-slate-400"></i><span>Conduct</span></span>
+          <span class="flex items-center space-x-1.5 bg-black/50 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur"><i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-400"></i><span>Filing</span></span>
+          <span class="flex items-center space-x-1.5 bg-black/50 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur"><i data-lucide="trophy" class="w-3.5 h-3.5 text-slate-400"></i><span>Leaderboard</span></span>
+          <span class="flex items-center space-x-1.5 bg-black/50 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur"><i data-lucide="history" class="w-3.5 h-3.5 text-slate-400"></i><span>History</span></span>
+          <span class="flex items-center space-x-1.5 bg-black/50 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur"><i data-lucide="bell" class="w-3.5 h-3.5 text-slate-400"></i><span>Notifications</span></span>
+        </div>
+      </div>
+
+      <div></div>
+    </div>
+
+    <!-- RIGHT SIDE: DISCORD LOGIN CARD -->
+    <div class="relative z-10 w-full lg:w-1/2 flex items-center justify-center p-6">
+      
+      <!-- Liquid Glass Login Card -->
+      <div id="auth-step-welcome" class="w-full max-w-sm liquid-glass-card p-7 rounded-2xl fade-in space-y-5 local-shine">
+        <div>
+          <h2 class="text-2xl font-extrabold text-white tracking-tight">Welcome back</h2>
+          <p class="text-xs text-slate-400 mt-1">Sign in with your Discord account to continue.</p>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <label class="flex items-center space-x-2 cursor-pointer select-none">
+            <input type="checkbox" checked class="rounded bg-slate-800 border-slate-700 text-slate-100 focus:ring-0" />
+            <span>Stay signed in</span>
+          </label>
+          <a href="#" class="text-amber-500 hover:underline">Trouble logging in?</a>
+        </div>
+
+        <!-- Direct Discord OAuth Button -->
+        <button onclick="loginWithDiscord()" class="w-full py-3 px-4 btn-discord font-semibold rounded-xl flex items-center justify-center space-x-3 text-sm">
+          <svg class="w-5 h-5 fill-current" viewBox="0 0 127.14 96.36">
+            <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a73.51,73.51,0,0,0,64.32,0c.87.68,1.76,1.36,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.14c2.64-27.38-4.51-51.11-18.92-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53S36,40.3,42.45,40.3C48.83,40.3,54,46,53.88,53,53.88,60,48.83,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5.06-12.7,11.44-12.7C91.1,40.3,96.24,46,96.12,53,96.12,60,91.1,65.69,84.69,65.69Z"/>
+          </svg>
+          <span>Continue with Discord</span>
+        </button>
+
+        <div class="pt-1 text-center">
+          <p class="text-xs text-slate-400">Not on the roster? <a href="#" class="text-amber-500 font-semibold hover:underline">Request staff access</a></p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ==================== MAIN DASHBOARD ==================== -->
+  <div id="main-dashboard" class="hidden flex-1 flex overflow-hidden fade-in">
+
+    <!-- Sidebar -->
+    <aside class="w-20 lg:w-64 bg-[#0d0f14] border-r border-slate-800/80 flex flex-col justify-between">
+      <div>
+        <div class="h-16 flex items-center px-6 border-b border-slate-800/80 space-x-3">
+          <div class="w-8 h-8 rounded-md bg-slate-800 border border-slate-500 flex items-center justify-center font-bold text-xs text-slate-100">
+            SRT
+          </div>
+          <span class="font-bold text-sm text-slate-200 hidden lg:inline tracking-wide">CHP SRT MDT</span>
+        </div>
+
+        <nav class="p-4 space-y-1.5">
+          <button onclick="switchTab('shifts')" id="tab-btn-shifts" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 bg-slate-800/90 border border-slate-700/50 transition">
+            <i data-lucide="clock" class="w-5 h-5 text-slate-400"></i>
+            <span class="hidden lg:inline">Shift Center</span>
+          </button>
+          <button onclick="switchTab('filing')" id="tab-btn-filing" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800/50 transition">
+            <i data-lucide="file-text" class="w-5 h-5 text-slate-400"></i>
+            <span class="hidden lg:inline">Filing & Reports</span>
+          </button>
+          <button onclick="switchTab('leaderboard')" id="tab-btn-leaderboard" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800/50 transition">
+            <i data-lucide="trophy" class="w-5 h-5 text-slate-400"></i>
+            <span class="hidden lg:inline">Shift Leaderboard</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- User Profile Card -->
+      <div class="p-4 border-t border-slate-800/80 bg-slate-900/40">
+        <div class="flex items-center space-x-3">
+          <img id="user-avatar-img" class="w-9 h-9 rounded-full border border-slate-400 object-cover hidden" src="" alt="Avatar" />
+          <div class="w-9 h-9 rounded-full bg-slate-700 border border-slate-400 flex items-center justify-center text-xs font-bold text-white shadow" id="user-avatar-fallback">
+            DC
+          </div>
+          <div class="hidden lg:block overflow-hidden">
+            <p id="user-display-username" class="text-sm font-semibold text-slate-200 truncate">Discord User</p>
+            <p id="user-display-id" class="text-xs text-slate-400 truncate">Verified Account</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Content Area -->
+    <main class="flex-1 flex flex-col overflow-y-auto bg-[#090a0f]">
+
+      <!-- Top Header -->
+      <header class="h-16 silver-card border-b border-slate-800 px-8 flex items-center justify-between sticky top-0 z-20">
+        <div class="flex items-center space-x-4">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Duty Status:</span>
+          <span id="duty-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-red-900/40 text-red-300 border border-red-700/50">
+            OFF DUTY
+          </span>
+        </div>
+
+        <div class="flex items-center space-x-6">
+          <div class="text-right">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Shift Time</p>
+            <p id="timer-display" class="text-lg font-mono font-bold text-slate-100">00:00:00</p>
+          </div>
+        </div>
+      </header>
+
+      <!-- TAB 1: SHIFT CENTER -->
+      <div id="tab-shifts" class="tab-content p-8 max-w-5xl mx-auto w-full space-y-6 fade-in">
+        <div class="silver-card p-8 rounded-2xl text-center">
+          <h2 class="text-2xl font-bold text-slate-100 mb-2">Trident Shift Management</h2>
+          <p class="text-slate-400 text-sm mb-8">Manage active duty deployments, shift logs, and breaks for CHP SRT.</p>
+          
+          <div class="flex flex-wrap justify-center gap-4">
+            <button onclick="startShift()" id="btn-start" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold flex items-center space-x-2 transition shadow-lg">
+              <i data-lucide="play" class="w-4 h-4"></i>
+              <span>Start Shift</span>
+            </button>
+            <button onclick="toggleBreak()" id="btn-break" disabled class="px-6 py-3 rounded-xl bg-amber-600/40 text-amber-200/50 font-semibold flex items-center space-x-2 transition cursor-not-allowed">
+              <i data-lucide="coffee" class="w-4 h-4"></i>
+              <span id="break-btn-text">Take Break</span>
+            </button>
+            <button onclick="endShift()" id="btn-end" disabled class="px-6 py-3 rounded-xl bg-red-600/40 text-red-200/50 font-semibold flex items-center space-x-2 transition cursor-not-allowed">
+              <i data-lucide="square" class="w-4 h-4"></i>
+              <span>End Shift</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="silver-card p-6 rounded-2xl">
+          <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center space-x-2">
+            <i data-lucide="history" class="w-5 h-5 text-slate-400"></i>
+            <span>Recent Shift Logs</span>
+          </h3>
+          <div id="shift-history-list" class="space-y-3">
+            <p class="text-sm text-slate-500 italic">No shifts logged in this session yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: FILING & REPORTS -->
+      <div id="tab-filing" class="tab-content hidden p-8 max-w-5xl mx-auto w-full space-y-6 fade-in">
+        <div class="flex space-x-4 border-b border-slate-800 pb-4">
+          <button onclick="switchFilingSub('warrant')" id="subtab-warrant" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-700 text-white transition">Warrant Request / Official Warrant</button>
+          <button onclick="switchFilingSub('aar')" id="subtab-aar" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:bg-slate-800 transition">After Action Report (AAR)</button>
+        </div>
+
+        <!-- Warrant Form -->
+        <div id="form-warrant" class="silver-card p-8 rounded-2xl space-y-6">
+          <div class="border-b border-slate-800 pb-4">
+            <h3 class="text-xl font-bold text-slate-100">Warrant Application & Authorization</h3>
+            <p class="text-xs text-slate-400 mt-1">State of California — California Highway Patrol SRT</p>
+          </div>
+
+          <form id="warrant-form" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Warrant No.</label>
+                <input type="text" id="w-no" placeholder="SRT-WAR-2026-001" required class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Case No.</label>
+                <input type="text" id="c-no" placeholder="CHP-2026-XXXX" required class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Warrant Type</label>
+                <select id="w-type" class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100 bg-slate-900">
+                  <option>SEARCH WARRANT</option>
+                  <option>ARREST WARRANT</option>
+                  <option>SEARCH & ARREST WARRANT</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Subject Name</label>
+                <input type="text" id="w-subject" placeholder="John Doe" required class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Subject Location / Address</label>
+                <input type="text" id="w-address" placeholder="123 Vinewood Blvd" required class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Primary Offense & Penal Code</label>
+              <input type="text" id="w-offense" placeholder="Armed Robbery / PC 211" required class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Statement of Probable Cause</label>
+              <textarea id="w-pc" rows="4" placeholder="Detail facts establishing probable cause..." required class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Specific Property / Items Sought</label>
+              <textarea id="w-property" rows="2" placeholder="Firearms, contraband, electronic devices..." required class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100"></textarea>
+            </div>
+
+            <button type="submit" class="w-full py-3.5 btn-silver-google font-semibold rounded-xl flex items-center justify-center space-x-2">
+              <i data-lucide="file-check" class="w-4 h-4"></i>
+              <span>Submit & Convert into Google Docs Format</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- AAR Form -->
+        <div id="form-aar" class="silver-card p-8 rounded-2xl space-y-6 hidden">
+          <div class="border-b border-slate-800 pb-4">
+            <h3 class="text-xl font-bold text-slate-100">After Action Report (AAR)</h3>
+            <p class="text-xs text-slate-400 mt-1">State of California — California Highway Patrol SRT</p>
+          </div>
+
+          <form id="aar-form" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Report No.</label>
+                <input type="text" id="aar-no" placeholder="SRT-AAR-2026-001" required class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Case / Incident No.</label>
+                <input type="text" id="aar-case" placeholder="CHP-2026-XXXX" required class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Operation Title / Incident</label>
+                <input type="text" id="aar-title" placeholder="High-Risk Warrant Execution - Sandy Shores" required class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Incident Commander</label>
+                <input type="text" id="aar-commander" placeholder="SR-101 Commander" required class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Operators Deployed & Callsigns</label>
+              <input type="text" id="aar-operators" placeholder="SR-102, SR-103, SR-104, SR-Medic" required class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Operational Summary & Actions Taken</label>
+              <textarea id="aar-summary" rows="4" placeholder="Detail initial response, breach execution, and conclusion..." required class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Arrests / Detentions & Evidence Recovered</label>
+              <textarea id="aar-outcome" rows="2" placeholder="1 suspect detained, 2 firearms recovered..." required class="w-full px-4 py-2.5 rounded-xl silver-input text-sm text-slate-100"></textarea>
+            </div>
+
+            <button type="submit" class="w-full py-3.5 btn-silver-google font-semibold rounded-xl flex items-center justify-center space-x-2">
+              <i data-lucide="file-check" class="w-4 h-4"></i>
+              <span>Generate AAR Google Doc Format</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 3: LEADERBOARD -->
+      <div id="tab-leaderboard" class="tab-content hidden p-8 max-w-5xl mx-auto w-full space-y-6 fade-in">
+        <div class="silver-card p-6 rounded-2xl">
+          <h3 class="text-xl font-bold text-slate-100 mb-1 flex items-center space-x-2">
+            <i data-lucide="trophy" class="w-6 h-6 text-slate-300"></i>
+            <span>CHP SRT Shift Leaderboard</span>
+          </h3>
+          <p class="text-xs text-slate-400 mb-6">Ranking all active operators by total duty hours logged.</p>
+
+          <div class="space-y-3" id="leaderboard-list">
+            <div class="flex items-center justify-between p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+              <div class="flex items-center space-x-4">
+                <span class="font-bold text-slate-200">#1</span>
+                <div>
+                  <p class="font-semibold text-slate-200">SR-101 (Commander)</p>
+                  <p class="text-xs text-slate-400">RobloxCommander</p>
+                </div>
+              </div>
+              <span class="font-mono font-bold text-slate-300">48h 20m</span>
+            </div>
+            <div class="flex items-center justify-between p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+              <div class="flex items-center space-x-4">
+                <span class="font-bold text-slate-400">#2</span>
+                <div>
+                  <p class="font-semibold text-slate-200">SR-102 (Lead Breacher)</p>
+                  <p class="text-xs text-slate-400">RobloxOperator</p>
+                </div>
+              </div>
+              <span class="font-mono font-bold text-slate-300">36h 15m</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Export Modal -->
+  <div id="export-modal" class="fixed inset-0 z-50 hidden bg-black/80 flex items-center justify-center p-4">
+    <div class="silver-card max-w-2xl w-full p-6 rounded-2xl space-y-4 max-h-[80vh] flex flex-col fade-in">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-lg text-slate-100">Google Docs Formatted Export</h3>
+        <button onclick="closeExportModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <p class="text-xs text-slate-400">Copy the text below and paste it directly into your official Google Doc template!</p>
+      <textarea id="export-output" readonly class="w-full h-64 bg-slate-900 border border-slate-700 rounded-xl p-4 font-mono text-xs text-slate-300 focus:outline-none"></textarea>
+      <button onclick="copyExportText()" class="py-3.5 btn-silver-google font-semibold rounded-xl flex items-center justify-center space-x-2">
+        <i data-lucide="copy" class="w-4 h-4"></i>
+        <span>Copy to Clipboard</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    // ================= DISCORD OAUTH CONFIGURATION =================
+    // Replace YOUR_DISCORD_CLIENT_ID with your Client ID from Discord Developer Portal
+    const DISCORD_CLIENT_ID = '1560987666160558080';
+    
+    // Set your Redirect URI (Use window.location.origin for automatic local testing)
+    const DISCORD_REDIRECT_URI = window.location.origin + window.location.pathname;
+
+    function loginWithDiscord() {
+      // If client ID isn't configured yet, simulate instant Discord login for testing
+      if (DISCORD_CLIENT_ID === 'YOUR_DISCORD_CLIENT_ID') {
+        const simulatedUser = {
+          username: "Ayan_Afzal",
+          id: "789123456789012345",
+          avatar: null
+        };
+        handleSuccessfulDiscordLogin(simulatedUser);
+        return;
+      }
+
+      // Official Discord OAuth2 Redirect URL
+      const oauthUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI)}&response_type=token&scope=identify`;
+      window.location.href = oauthUrl;
+    }
+
+    // Check for Discord OAuth Token in URL Hash upon returning
+    window.addEventListener('DOMContentLoaded', () => {
+      const fragment = new URLSearchParams(window.location.hash.slice(1));
+      const accessToken = fragment.get('access_token');
+
+      if (accessToken) {
+        // Clear fragment from URL bar for clean UI
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        // Fetch user data directly from Discord API
+        fetch('https://discord.com/api/users/@me', {
+          headers: { authorization: `Bearer ${accessToken}` }
+        })
+        .then(res => res.json())
+        .then(userData => {
+          handleSuccessfulDiscordLogin(userData);
+        })
+        .catch(err => {
+          console.error("Discord Auth Error:", err);
+          alert("Failed to authenticate with Discord.");
+        });
+      }
+    });
+
+    function handleSuccessfulDiscordLogin(userData) {
+      // Display user details on dashboard sidebar
+      document.getElementById('user-display-username').innerText = userData.username;
+      document.getElementById('user-display-id').innerText = `ID: ${userData.id}`;
+
+      if (userData.avatar) {
+        const avatarUrl = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
+        const avatarImg = document.getElementById('user-avatar-img');
+        avatarImg.src = avatarUrl;
+        avatarImg.classList.remove('hidden');
+        document.getElementById('user-avatar-fallback').classList.add('hidden');
+      } else {
+        document.getElementById('user-avatar-fallback').innerText = userData.username.substring(0, 2).toUpperCase();
+      }
+
+      // Hide login screen and show MDT Dashboard
+      const loginScreen = document.getElementById('login-screen');
+      loginScreen.style.transition = 'opacity 0.5s ease';
+      loginScreen.style.opacity = '0';
+      setTimeout(() => {
+        loginScreen.classList.add('hidden');
+        const dash = document.getElementById('main-dashboard');
+        dash.classList.remove('hidden');
+        dash.classList.add('fade-in');
+      }, 500);
+    }
+
+    // 20-Second Background Slideshow
+    const slideImages = ['bg1.jpg', 'bg2.jpg', 'bg3.jpg', 'bg4.jpg', 'bg5.jpg'];
+    let currentSlide = 0;
+    setInterval(() => {
+      currentSlide = (currentSlide + 1) % slideImages.length;
+      const container = document.getElementById('login-screen');
+      if(container) {
+        container.style.backgroundImage = `url('${slideImages[currentSlide]}')`;
+      }
+    }, 20000);
+
+    let shiftInterval = null;
+    let secondsElapsed = 0;
+    let onBreak = false;
+    let dutyState = 'OFF';
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(el => {
+        el.classList.remove('bg-slate-800/90', 'text-slate-200', 'border', 'border-slate-700/50');
+        el.classList.add('text-slate-400');
+      });
+
+      const targetTab = document.getElementById(`tab-${tabId}`);
+      targetTab.classList.remove('hidden');
+      targetTab.classList.remove('fade-in');
+      void targetTab.offsetWidth;
+      targetTab.classList.add('fade-in');
+      
+      const btn = document.getElementById(`tab-btn-${tabId}`);
+      btn.classList.add('bg-slate-800/90', 'text-slate-200', 'border', 'border-slate-700/50');
+      btn.classList.remove('text-slate-400');
+      lucide.createIcons();
+    }
+
+    function switchFilingSub(sub) {
+      if(sub === 'warrant') {
+        document.getElementById('form-warrant').classList.remove('hidden');
+        document.getElementById('form-aar').classList.add('hidden');
+        document.getElementById('subtab-warrant').className = "px-4 py-2 rounded-xl text-sm font-semibold bg-slate-700 text-white transition";
+        document.getElementById('subtab-aar').className = "px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:bg-slate-800 transition";
+      } else {
+        document.getElementById('form-aar').classList.remove('hidden');
+        document.getElementById('form-warrant').classList.add('hidden');
+        document.getElementById('subtab-aar').className = "px-4 py-2 rounded-xl text-sm font-semibold bg-slate-700 text-white transition";
+        document.getElementById('subtab-warrant').className = "px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:bg-slate-800 transition";
+      }
+    }
+
+    function startShift() {
+      dutyState = 'ON_DUTY';
+      document.getElementById('duty-badge').innerText = 'ON DUTY';
+      document.getElementById('duty-badge').className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-900/50 text-emerald-300 border border-emerald-700/50';
+
+      document.getElementById('btn-start').disabled = true;
+      document.getElementById('btn-start').className = 'px-6 py-3 rounded-xl bg-emerald-600/40 text-emerald-200/50 font-semibold cursor-not-allowed';
+      
+      document.getElementById('btn-break').disabled = false;
+      document.getElementById('btn-break').className = 'px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold flex items-center space-x-2 transition shadow-lg';
+      
+      document.getElementById('btn-end').disabled = false;
+      document.getElementById('btn-end').className = 'px-6 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold flex items-center space-x-2 transition shadow-lg';
+
+      if (!shiftInterval) {
+        shiftInterval = setInterval(() => {
+          if (!onBreak) {
+            secondsElapsed++;
+            updateTimerDisplay();
+          }
+        }, 1000);
+      }
+    }
+
+    function toggleBreak() {
+      onBreak = !onBreak;
+      const badge = document.getElementById('duty-badge');
+      const breakText = document.getElementById('break-btn-text');
+      if (onBreak) {
+        dutyState = 'ON_BREAK';
+        badge.innerText = 'ON BREAK';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-900/50 text-amber-300 border border-amber-700/50';
+        breakText.innerText = 'Resume Shift';
+      } else {
+        dutyState = 'ON_DUTY';
+        badge.innerText = 'ON DUTY';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-900/50 text-emerald-300 border border-emerald-700/50';
+        breakText.innerText = 'Take Break';
+      }
+    }
+
+    function endShift() {
+      clearInterval(shiftInterval);
+      shiftInterval = null;
+
+      const hours = Math.floor(secondsElapsed / 3600);
+      const mins = Math.floor((secondsElapsed % 3600) / 60);
+      const timeStr = `${hours}h ${mins}m`;
+
+      const historyList = document.getElementById('shift-history-list');
+      if(historyList.querySelector('p')) historyList.innerHTML = '';
+      
+      const item = document.createElement('div');
+      item.className = "flex items-center justify-between p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-sm fade-in";
+      item.innerHTML = `<span>Shift completed by operator</span> <span class="font-mono text-slate-300 font-bold">${timeStr}</span>`;
+      historyList.prepend(item);
+
+      secondsElapsed = 0;
+      updateTimerDisplay();
+      dutyState = 'OFF';
+      document.getElementById('duty-badge').innerText = 'OFF DUTY';
+      document.getElementById('duty-badge').className = 'px-3 py-1 rounded-full text-xs font-bold bg-red-900/50 text-red-300 border border-red-700/50';
+
+      document.getElementById('btn-start').disabled = false;
+      document.getElementById('btn-start').className = 'px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold flex items-center space-x-2 transition shadow-lg';
+      document.getElementById('btn-break').disabled = true;
+      document.getElementById('btn-break').className = 'px-6 py-3 rounded-xl bg-amber-600/40 text-amber-200/50 font-semibold cursor-not-allowed';
+      document.getElementById('btn-end').disabled = true;
+      document.getElementById('btn-end').className = 'px-6 py-3 rounded-xl bg-red-600/40 text-red-200/50 font-semibold cursor-not-allowed';
+    }
+
+    function updateTimerDisplay() {
+      const hrs = String(Math.floor(secondsElapsed / 3600)).padStart(2, '0');
+      const mins = String(Math.floor((secondsElapsed % 3600) / 60)).padStart(2, '0');
+      const secs = String(secondsElapsed % 60).padStart(2, '0');
+      document.getElementById('timer-display').innerText = `${hrs}:${mins}:${secs}`;
+    }
+
+    document.getElementById('warrant-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const wNo = document.getElementById('w-no').value;
+      const cNo = document.getElementById('c-no').value;
+      const type = document.getElementById('w-type').value;
+      const subject = document.getElementById('w-subject').value;
+      const address = document.getElementById('w-address').value;
+      const offense = document.getElementById('w-offense').value;
+      const pc = document.getElementById('w-pc').value;
+      const property = document.getElementById('w-property').value;
+
+      const docText = `WARRANT APPLICATION & AUTHORIZATION
+STATE OF CALIFORNIA - CALIFORNIA HIGHWAY PATROL SRT
+WARRANT NO.: ${wNo}    CASE NO.: ${cNo}
+DATE: ${new Date().toLocaleDateString()}
+
+01 - REQUESTING OFFICER
+RANK: SRT OPERATOR
+UNIT: SPECIAL RESPONSE TEAM
+
+02 - WARRANT TYPE: ${type}
+SUBJECT: ${subject}
+ADDRESS / LOCATION: ${address}
+
+03 - OFFENSE INFORMATION
+PRIMARY OFFENSE: ${offense}
+
+04 - PROBABLE CAUSE
+STATEMENT OF FACTS:
+${pc}
+
+05 - PROPERTY / EVIDENCE SOUGHT
+${property}`;
+
+      showExportModal(docText);
+    });
+
+    document.getElementById('aar-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const aarNo = document.getElementById('aar-no').value;
+      const aarCase = document.getElementById('aar-case').value;
+      const title = document.getElementById('aar-title').value;
+      const commander = document.getElementById('aar-commander').value;
+      const operators = document.getElementById('aar-operators').value;
+      const summary = document.getElementById('aar-summary').value;
+      const outcome = document.getElementById('aar-outcome').value;
+
+      const docText = `AFTER ACTION REPORT
+STATE OF CALIFORNIA - CALIFORNIA HIGHWAY PATROL SRT
+REPORT NO.: ${aarNo}    CASE NO.: ${aarCase}
+DATE: ${new Date().toLocaleDateString()}
+
+01 - OPERATION INFORMATION
+OPERATION / INCIDENT: ${title}
+INCIDENT COMMANDER: ${commander}
+
+02 - SRT PERSONNEL
+OPERATORS DEPLOYED: ${operators}
+
+03 - OPERATIONAL SUMMARY
+${summary}
+
+04 - OPERATIONAL OUTCOME
+${outcome}
+
+STATUS: SUBMITTED & VERIFIED`;
+
+      showExportModal(docText);
+    });
+
+    function showExportModal(text) {
+      document.getElementById('export-output').value = text;
+      document.getElementById('export-modal').classList.remove('hidden');
+    }
+
+    function closeExportModal() {
+      document.getElementById('export-modal').classList.add('hidden');
+    }
+
+    function copyExportText() {
+      const textarea = document.getElementById('export-output');
+      textarea.select();
+      navigator.clipboard.writeText(textarea.value);
+      alert('Copied to clipboard! You can now paste this into your Google Doc.');
+    }
+  </script>
+</body>
+</html>
